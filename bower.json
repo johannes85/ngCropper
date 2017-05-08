@@ -2,7 +2,7 @@
   "name": "ng-cropperjs",
   "main": [
     "dist/ngCropperjs.all.js",
-    "dist/ngCropper.all.css"
+    "dist/ngCropperjs.all.css"
   ],
   "version": "1.0.1",
   "homepage": "https://github.com/johannes85/ngCropperjs",
