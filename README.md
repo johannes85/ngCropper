@@ -1,6 +1,7 @@
 # ngCropperjs
 
 AngularJS module for https://github.com/fengyuanchen/cropperjs.
+
 Fork and drop-in replacement of https://github.com/koorgoo/ngCropper
 
 ### Install
@@ -13,8 +14,8 @@ bower install ng-cropper
 ### Usage
 
 ```html
-<link href="client/bower_components/ngCropper/dist/ngCropper.all.css" rel="stylesheet">
-<script src="client/bower_components/ngCropper/dist/ngCropper.all.js"></script>
+<link href="client/bower_components/ngCropperjs/dist/ngCropperjs.all.css" rel="stylesheet">
+<script src="client/bower_components/ngCropperjs/dist/ngCropperjs.all.js"></script>
 ```
 
 ```javascript
