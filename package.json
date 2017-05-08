@@ -2,6 +2,7 @@
   "name": "ngCropperjs",
   "version": "1.0.0",
   "license": "MIT",
+  "repository": "git@github.com:johannes85/ngCropperjs.git",
   "devDependencies": {
     "minify": "^2.0.13"
   }
