@@ -3664,197 +3664,191 @@ return /******/ (function(modules) { // webpackBootstrap
 ;
 //# sourceMappingURL=cropper.js.map
 (function() {
-'use strict';
+  'use strict';
 
-angular.module('ngCropper', ['ng'])
-.directive('ngCropper', ['$q', '$parse', function($q, $parse) {
-  return {
-    restrict: 'A',
-    scope: {
-      options: '=ngCropperOptions',
-      showEvent: '=ngCropperShow',
-      hideEvent: '=ngCropperHide',
-      proxy: '=?ngCropperProxy', // Optional.
-    },
-    link: function(scope, element, atts) {
-      var shown = false;
+  angular.module('ngCropper', ['ng'])
+    .directive('ngCropper', ['$q', '$parse', function($q, $parse) {
+      return {
+        restrict: 'A',
+        scope: {
+          options: '=ngCropperOptions',
+          showEvent: '=ngCropperShow',
+          hideEvent: '=ngCropperHide',
+          proxy: '=?ngCropperProxy', // Optional.
+        },
+        link: function(scope, element, atts) {
+          var shown = false;
 
-      var cropperInstance;
+          var cropperInstance;
 
-      scope.$on(scope.showEvent, function() {
-        if (shown) return;
-        shown = true;
+          scope.$on(scope.showEvent, function() {
+            if (shown) return;
+            shown = true;
 
-        preprocess(scope.options, element[0])
-          .then(function(options) {
-            cropperInstance= new Cropper(element[0], options);
-            setProxy();
-          })
-      });
+            preprocess(scope.options, element[0])
+              .then(function(options) {
+                cropperInstance= new Cropper(element[0], options);
+                setProxy();
+              })
+          });
 
-      function setProxy() {
-        if (!scope.proxy) return;
-        $parse(scope.proxy).assign(scope.$parent, function(action) {
-          cropperInstance[action]();
+          function setProxy() {
+            if (!scope.proxy) return;
+            $parse(scope.proxy).assign(scope.$parent, function(action) {
+              cropperInstance[action]();
+            });
+          }
+
+          scope.$on(scope.hideEvent, function() {
+            if (!shown) return;
+            shown = false;
+            cropperInstance.destroy();
+          });
+
+          scope.$watch('options.disabled', function(disabled) {
+            if (!shown) return;
+            if (disabled) cropperInstance.disable();
+            if (!disabled) cropperInstance.enable();
+          });
+        }
+      };
+
+      function preprocess(options, img) {
+        options = options || {};
+        var result = $q.when(options); // No changes.
+        if (options.maximize) {
+          result = maximizeSelection(options, img);
+        }
+        return result;
+      }
+
+      /**
+       * Change options to make selection maximum for the image.
+       * fengyuanchen/cropper calculates valid selection's height & width
+       * with respect to `aspectRatio`.
+       */
+      function maximizeSelection(options, img) {
+        return getRealSize(img).then(function(size) {
+          options.data = size;
+          return options;
         });
       }
 
-      scope.$on(scope.hideEvent, function() {
-        if (!shown) return;
-        shown = false;
-        cropperInstance.destroy();
-      });
+      /**
+       * Returns real image size (without changes by css, attributes).
+       */
+      function getRealSize(img) {
+        var defer = $q.defer();
+        var size = {height: null, width: null};
+        var image = new Image();
 
-      scope.$watch('options.disabled', function(disabled) {
-        if (!shown) return;
-        if (disabled) cropperInstance.disable();
-        if (!disabled) cropperInstance.enable();
-      });
-    }
-  };
+        image.onload = function() {
+          defer.resolve({width: image.width, height: image.height});
+        }
 
-  function preprocess(options, img) {
-    options = options || {};
-    var result = $q.when(options); // No changes.
-    if (options.maximize) {
-      result = maximizeSelection(options, img);
-    }
-    if (options.crop) {
-      var oldCallback= options.crop;
-      options.crop= function(data) {
-        oldCallback(data.detail);
+        image.src = img.src;
+        return defer.promise;
       }
-    }
-    return result;
-  }
+    }])
+    .service('Cropper', ['$q', function($q) {
 
-  /**
-   * Change options to make selection maximum for the image.
-   * fengyuanchen/cropper calculates valid selection's height & width
-   * with respect to `aspectRatio`.
-   */
-  function maximizeSelection(options, img) {
-    return getRealSize(img).then(function(size) {
-      options.data = size;
-      return options;
-    });
-  }
+      this.encode = function(blob) {
+        var defer = $q.defer();
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          defer.resolve(e.target.result);
+        };
+        reader.readAsDataURL(blob);
+        return defer.promise;
+      };
 
-  /**
-   * Returns real image size (without changes by css, attributes).
-   */
-  function getRealSize(img) {
-    var defer = $q.defer();
-    var size = {height: null, width: null};
-    var image = new Image();
+      this.decode = function(dataUrl) {
+        var meta = dataUrl.split(';')[0];
+        var type = meta.split(':')[1];
+        var binary = atob(dataUrl.split(',')[1]);
+        var array = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i++) {
+          array[i] = binary.charCodeAt(i);
+        }
+        return new Blob([array], {type: type});
+      };
 
-    image.onload = function() {
-      defer.resolve({width: image.width, height: image.height});
-    }
+      this.crop = function(file, data) {
+        var _decodeBlob = this.decode;
+        return this.encode(file).then(_createImage).then(function(image) {
+          var canvas = createCanvas(data);
+          var context = canvas.getContext('2d');
 
-    image.src = img.src;
-    return defer.promise;
-  }
-}])
-.service('Cropper', ['$q', function($q) {
+          context.drawImage(image, data.x, data.y, data.width, data.height, 0, 0, data.width, data.height);
 
-  this.encode = function(blob) {
-    var defer = $q.defer();
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      defer.resolve(e.target.result);
-    };
-    reader.readAsDataURL(blob);
-    return defer.promise;
-  };
+          var encoded = canvas.toDataURL(file.type);
+          removeElement(canvas);
 
-  this.decode = function(dataUrl) {
-    var meta = dataUrl.split(';')[0];
-    var type = meta.split(':')[1];
-    var binary = atob(dataUrl.split(',')[1]);
-    var array = new Uint8Array(binary.length);
-    for (var i = 0; i < binary.length; i++) {
-        array[i] = binary.charCodeAt(i);
-    }
-    return new Blob([array], {type: type});
-  };
+          return _decodeBlob(encoded);
+        });
+      };
 
-  this.crop = function(file, data) {
-    var _decodeBlob = this.decode;
-    return this.encode(file).then(_createImage).then(function(image) {
-      var canvas = createCanvas(data);
-      var context = canvas.getContext('2d');
+      this.scale = function(file, data) {
+        var _decodeBlob = this.decode;
+        return this.encode(file).then(_createImage).then(function(image) {
+          var heightOrig = image.height;
+          var widthOrig = image.width;
+          var ratio, height, width;
 
-      context.drawImage(image, data.x, data.y, data.width, data.height, 0, 0, data.width, data.height);
+          if (angular.isNumber(data)) {
+            ratio = data;
+            height = heightOrig * ratio;
+            width = widthOrig * ratio;
+          }
 
-      var encoded = canvas.toDataURL(file.type);
-      removeElement(canvas);
+          if (angular.isObject(data)) {
+            ratio = widthOrig / heightOrig;
+            height = data.height;
+            width = data.width;
 
-      return _decodeBlob(encoded);
-    });
-  };
+            if (height && !width)
+              width = height * ratio;
+            else if (width && !height)
+              height = width / ratio;
+          }
 
-  this.scale = function(file, data) {
-    var _decodeBlob = this.decode;
-    return this.encode(file).then(_createImage).then(function(image) {
-      var heightOrig = image.height;
-      var widthOrig = image.width;
-      var ratio, height, width;
+          var canvas = createCanvas(data);
+          var context = canvas.getContext('2d');
 
-      if (angular.isNumber(data)) {
-        ratio = data;
-        height = heightOrig * ratio;
-        width = widthOrig * ratio;
+          canvas.height = height;
+          canvas.width = width;
+
+          context.drawImage(image, 0, 0, widthOrig, heightOrig, 0, 0, width, height);
+
+          var encoded = canvas.toDataURL(file.type);
+          removeElement(canvas);
+
+          return _decodeBlob(encoded);
+        });
+      };
+
+
+      function _createImage(source) {
+        var defer = $q.defer();
+        var image = new Image();
+        image.onload = function(e) { defer.resolve(e.target); };
+        image.src = source;
+        return defer.promise;
       }
 
-      if (angular.isObject(data)) {
-        ratio = widthOrig / heightOrig;
-        height = data.height;
-        width = data.width;
-
-        if (height && !width)
-          width = height * ratio;
-        else if (width && !height)
-          height = width / ratio;
+      function createCanvas(data) {
+        var canvas = document.createElement('canvas');
+        canvas.width = data.width;
+        canvas.height = data.height;
+        canvas.style.display = 'none';
+        document.body.appendChild(canvas);
+        return canvas;
       }
 
-      var canvas = createCanvas(data);
-      var context = canvas.getContext('2d');
+      function removeElement(el) {
+        el.parentElement.removeChild(el);
+      }
 
-      canvas.height = height;
-      canvas.width = width;
-
-      context.drawImage(image, 0, 0, widthOrig, heightOrig, 0, 0, width, height);
-
-      var encoded = canvas.toDataURL(file.type);
-      removeElement(canvas);
-
-      return _decodeBlob(encoded);
-    });
-  };
-
-
-  function _createImage(source) {
-    var defer = $q.defer();
-    var image = new Image();
-    image.onload = function(e) { defer.resolve(e.target); };
-    image.src = source;
-    return defer.promise;
-  }
-
-  function createCanvas(data) {
-    var canvas = document.createElement('canvas');
-    canvas.width = data.width;
-    canvas.height = data.height;
-    canvas.style.display = 'none';
-    document.body.appendChild(canvas);
-    return canvas;
-  }
-
-  function removeElement(el) {
-    el.parentElement.removeChild(el);
-  }
-
-}]);
+    }]);
 
 })();

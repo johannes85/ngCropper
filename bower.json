@@ -4,7 +4,7 @@
     "dist/ngCropperjs.all.js",
     "dist/ngCropper.all.css"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/johannes85/ngCropperjs",
   "authors": [
     "Johannes Zinnau <johannes@johnimedia.de>",
