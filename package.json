@@ -1,8 +1,13 @@
 {
-  "name": "ngCropperjs",
+  "name": "ng-cropperjs",
   "version": "1.0.2",
+  "author": "Johannes Zinnau (johannes@johnimedia.de)",
   "license": "MIT",
   "repository": "git@github.com:johannes85/ngCropperjs.git",
+  "main": "dist/ngCropperjs.all.js",
+  "dependencies": {
+    "angular": "~1.4.1 || ~1.5 || ~1.6"
+  },
   "devDependencies": {
     "minify": "^2.0.13"
   }
