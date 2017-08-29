@@ -1,0 +1,6 @@
+Hello,
+
+As you disabled issues (I guess so), I'm doing a PR to let you know that something is broken, I tested on the demo as well.
+The preview image src attribute is always "unsafe:data:" instead of the base64 image.
+
+Cheers.
