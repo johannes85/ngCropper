@@ -13,7 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "angular": "~1.4.1 || ~1.5 || ~1.6",
-    "cropperjs": "^0.8.1"
+    "cropperjs": "^1.5.1"
   },
   "devDependencies": {
     "mocha": "~1.21.4",

@@ -1,4 +1,4 @@
-MINIFY=node_modules/minify/bin/minify.js
+MINIFY=./node_modules/.bin/minify
 CROPPER_JS=bower_components/cropperjs/dist/cropper.js
 CROPPER_CSS=bower_components/cropperjs/dist/cropper.css
 BROWSER=open -a "/Applications/Google Chrome.app"
