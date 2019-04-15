@@ -7,15 +7,13 @@ Fork and drop-in replacement of https://github.com/koorgoo/ngCropper
 ### Install
 
 ```bash
-bower install ng-cropper
+npm install ng-cropperjs
 ```
-
 
 ### Usage
 
 ```html
-<link href="client/bower_components/ngCropperjs/dist/ngCropperjs.all.css" rel="stylesheet">
-<script src="client/bower_components/ngCropperjs/dist/ngCropperjs.all.js"></script>
+<script src="node_modules/ng-cropperjs/dist/main.js"></script>
 ```
 
 ```javascript
@@ -34,10 +32,3 @@ app.controller('Main', function(Cropper) {
      ng-cropper-hide="'hide.cropper'">
 ```
 
-Read [Demo code](http://github.com/koorgoo/ngCropper/tree/master/demo) for detailed example.
-
-
-
-### API
-
-Look at [demo.js](http://github.com/koorgoo/ngCropper/tree/master/demo/demo.js) to learn workflow.
