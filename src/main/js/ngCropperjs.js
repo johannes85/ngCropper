@@ -1,3 +1,6 @@
+import Cropper from 'cropperjs';
+import 'cropperjs/dist/cropper.css';
+
 (function() {
   'use strict';
 

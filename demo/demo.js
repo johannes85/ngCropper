@@ -12,8 +12,10 @@ angular.module('demo', ['ngCropper'])
    * when input's event is fired.
    */
   $scope.onFile = function(blob) {
+    console.log('File selected');
     Cropper.encode((file = blob)).then(function(dataUrl) {
       $scope.dataUrl = dataUrl;
+      hideCropper();
       $timeout(showCropper);  // wait for $digest to set image's src
     });
   };

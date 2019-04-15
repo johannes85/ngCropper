@@ -4,11 +4,20 @@
   "author": "Johannes Zinnau (johannes@johnimedia.de)",
   "license": "MIT",
   "repository": "git@github.com:johannes85/ngCropperjs.git",
-  "main": "dist/ngCropperjs.all.js",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "npx webpack",
+    "release": "np patch"
+  },
   "dependencies": {
     "angular": "~1.4.1 || ~1.5 || ~1.6"
   },
   "devDependencies": {
-    "minify": "^2.0.13"
+    "cropperjs": "^1.5.1",
+    "css-loader": "^2.1.1",
+    "np": "^4.0.2",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.0"
   }
 }
